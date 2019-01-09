@@ -1,0 +1,4 @@
+{
+    "python.pythonPath": "music/bin/python3",
+    "git.ignoreLimitWarning": true
+}
