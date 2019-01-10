@@ -6,6 +6,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login
 from rest_framework_jwt.settings import api_settings
 from rest_framework.response import Response
+from rest_framework.views import status
 from .decorators import validate_request_data
 from rest_framework import permissions
 
@@ -17,7 +18,7 @@ class LoginView(generics.CreateAPIView):
     """POST auth/login"""
     #Permission to override the global permission
     permission_classes = (permissions.AllowAny,)
-
+    serializer_class = UserSerializer
     queryset = User.objects.all()
 
     def post(self, request, *args, **kwargs):

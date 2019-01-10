@@ -1,4 +1,4 @@
 {
-    "python.pythonPath": "music/bin/python3",
+    "python.pythonPath": "env/bin/python",
     "git.ignoreLimitWarning": true
 }

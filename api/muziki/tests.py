@@ -1,3 +1,4 @@
+import json
 from django.urls import reverse
 from django.contrib.auth.models import User
 from rest_framework.test import APITestCase, APIClient
@@ -29,7 +30,7 @@ class BaseTestView(APITestCase):
     @staticmethod
     def create_song(title="", artist=""):
         if title != ""  and artist != "":
-            Songs.objects.create(title=title, artist=artist)
+            Songz.objects.create(title=title, artist=artist)
     
     # def setUp(self):
     #     self.create_song("made a way", "travis greene")
@@ -50,12 +51,12 @@ class BaseTestView(APITestCase):
                 content_type='application/json'
             )
         elif kind == "put":
-            returb self.client.get(
+            return self.client.get(
                 reverse(
                     "songs-detail",
                     kwargs={
-                        "version": kwargs=["version"],
-                        "pk": kwargs=["id"]
+                        "version": kwargs["version"],
+                        "pk": kwargs["id"]
                     }
                 ),
                 data=json.dumps(kwargs["data"]),
