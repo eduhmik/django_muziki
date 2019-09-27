@@ -14,11 +14,13 @@ from rest_framework import permissions
 jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
 jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
 
+
 class LoginView(generics.CreateAPIView):
-    """POST auth/login"""
+    """POST auth/login/"""
     #Permission to override the global permission
     permission_classes = (permissions.AllowAny,)
     serializer_class = UserSerializer
+
     queryset = User.objects.all()
 
     def post(self, request, *args, **kwargs):
@@ -46,7 +48,7 @@ class ListCreateSongsView(generics.ListCreateAPIView):
     """
     queryset = Songz.objects.all()
     serializer_class = SongsSerializer
-    permission_classes = (permissions.IsAuthenticated)
+    permission_classes = (permissions.IsAuthenticated,)
 
     @validate_request_data
     def post(self, request, *args, **kwargs):
@@ -110,7 +112,7 @@ class SongsDetailView(generics.RetrieveUpdateDestroyAPIView):
 
 class RegisterUsers(generics.CreateAPIView):
     """
-    POST auth/register
+    POST auth/register/
     """
     permission_classes = (permissions.AllowAny,)
 

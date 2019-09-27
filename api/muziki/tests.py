@@ -8,7 +8,7 @@ from .serializers import SongsSerializer
 
 # Create your tests here.
 
-#Test for our models
+# Test for our models
 class SongsModelTest(APITestCase):
     def setUp(self):
         self.a_song = Songz.objects.create(
@@ -26,6 +26,26 @@ class SongsModelTest(APITestCase):
 class BaseTestView(APITestCase):
 
     client = APIClient()
+
+    def login_client(self, username="", password=""):
+        #get a token from DRF
+        response = self.client.post(
+            reverse('create-token'),
+            data=json.dumps(
+                {
+                    'username': username,
+                    'password': password
+                }
+            ),
+            content_type='application/json'
+        )
+        self.token = response.data['token']
+        #set the token in the header
+        self.client.credentials(
+            HTTP_AUTHORIZATION='Bearer' + self.token
+        )
+        self.client.login(username=username, password=password)
+        return self.token
 
     @staticmethod
     def create_song(title="", artist=""):
@@ -51,7 +71,7 @@ class BaseTestView(APITestCase):
                 content_type='application/json'
             )
         elif kind == "put":
-            return self.client.get(
+            return self.client.put(
                 reverse(
                     "songs-detail",
                     kwargs={
@@ -103,6 +123,25 @@ class BaseTestView(APITestCase):
             content_type='application/json'
         )
 
+    def register_a_user(self, username="", password="", email=""):
+        return self.client.post(
+            reverse(
+                "auth-register",
+                kwargs={
+                    "version": "v1"
+                }
+            ),
+            data=json.dumps(
+                {
+                    "username": username,
+                    "password": password,
+                    "email": email
+                }
+            ),
+            content_type='application/json'
+        )
+
+
     def setUp(self):
         #create a admin user
         self.user = User.objects.create_superuser(
@@ -134,16 +173,65 @@ class AuthLoginUserTest(BaseTestView):
         response = self.login_a_user("anonymous", "pass")
         #assert status code is 401 Unauthorized
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        
 class GetAllSongsTest(BaseTestView):
 
     def test_get_all_songs(self):
         """Test ensures we get a list of all the songs added in our api"""
+        self.login_client('test_user', 'testing')
         #hit the api endpoint
         response = self.client.get(
-            reverse("songs-all", kwargs={"version":"v1"})
+            reverse("songs-list-create", kwargs={"version":"v1"})
         )
         #fetch data from db
-        expected = Songs.objects.all()
+        expected = Songz.objects.all()
         serialized = SongsSerializer(expected, many=True)
         self.assertEqual(response.data, serialized.data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+class AuthRegisterUserTest(BaseTestView):
+
+    
+    """
+    Tests for auth/register/ endpoint
+    """
+    def test_register_a_user_with_valid_data(self):
+        url = reverse(
+            "auth-register",
+            kwargs={
+                "version": "v1"
+            }
+        )
+        response = self.client.post(
+            url,
+            data=json.dumps(
+                {
+                    "username": "new_user",
+                    "password": "new_pass",
+                    "email": "new_user@email.com"
+                }
+            ),
+            content_type="application/json"
+        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+
+    def test_register_a_user_with_invalid_data(self):
+        url = reverse(
+            "auth-register",
+            kwargs={
+                "version": "v1"
+            }
+        )
+        response = self.client.post(
+            url,
+            data=json.dumps(
+                {
+                    "username": "",
+                    "password": "",
+                    "email": ""
+                }
+            ),
+            content_type="application/json"
+        )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
