@@ -1,4 +1,4 @@
 Django==2.0.3
-djangorestframework==3.9.0
+djangorestframework==3.11.2
 psycopg2-binary==2.7.6.1
 pytz==2018.7
